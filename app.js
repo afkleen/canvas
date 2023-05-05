@@ -1,3 +1,4 @@
+
 // Setup
 window.focus;
 let myCanvas = document.getElementById("myCanvas");
@@ -189,27 +190,11 @@ function animate() {
 
   //Hopp
   if (mario.jumping && mario.jumpFrame < 10) {
-    mario.y -= 50;
-    mario.jumpFrame += 1;
-  } else if (
-    mario.jumping &&
-    mario.jumpFrame >= 10 &&
-    mario.jumping &&
-    mario.jumpFrame < 20
-  ) {
-    mario.y -= 40;
-    mario.jumpFrame += 1;
-  } else if (
-    mario.jumping &&
-    mario.jumpFrame >= 20 &&
-    mario.jumping &&
-    mario.jumpFrame < 30
-  ) {
-    mario.y -= 30;
-    mario.jumpFrame += 1;
-  } else if (mario.jumping && mario.jumpFrame >= 30) {
-    mario.jumpFrame += 1;
-  }
+      for (let i = 0; i < 100; i++) {
+            mario.jumpFrame=mario.jumpFra
+        
+      }
+   
 
   // Är mario på marken?
   if (mario.y >= myCanvas.height - 150) {
