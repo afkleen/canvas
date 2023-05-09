@@ -1,4 +1,3 @@
-
 // Setup
 window.focus;
 let myCanvas = document.getElementById("myCanvas");
@@ -11,6 +10,7 @@ let marioImage = document.getElementById("mario");
 let luigiImage = document.getElementById("luigi");
 
 const GRAVITY = 10;
+const JUMP_VELOCITY = -50;
 
 let mario = {
   width: 100,
@@ -59,27 +59,41 @@ class Platform {
     (this.width = width), (this.height = height);
   }
   draw() {
-    c.fillStyle = "red";
+    c.fillStyle = "limegreen";
     c.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 }
+class Rocket {
+  constructor({ x, y, width, height }) {
+    this.position = {
+      x,
+      y,
+    };
 
-// function Faller(mario) {
-//   for (let i = 0; i < Platformlista.length; i++) {
-//     const element = array[i];
-//     if (
-//       mario.y + mario.height == Platformlista[i].varY &&
-//       Platformlista[i].varX < mario.x + mario.width &&
-//       mario.x < Platformlista[i].varX + Platformlista[i].längdX
-//     ) {
-//       return true;
-//     }
-//   }
-// }
+    this.velocity = Math.random() * -6; // Random velocity between -3 and 3
+
+    (this.width = width), (this.height = height);
+  }
+
+  draw() {
+    c.fillStyle = "red";
+    c.fillRect(this.position.x, this.position.y, this.width, this.height);
+  }
+
+  update() {
+    this.draw();
+    this.position.x += this.velocity;
+  }
+}
 
 const platforms = [
-  new Platform({ x: 100, y: 200, width: 200, height: 25 }),
+  new Platform({ x: 100, y: 200, width: 100, height: 20 }),
   new Platform({ x: 500, y: 400, width: 300, height: 30 }),
+];
+
+const rockets = [
+  new Rocket({ x: 50, y: 100, width: 40, height: 40 }),
+  new Rocket({ x: 600, y: 300, width: 40, height: 40 }),
 ];
 
 document.addEventListener("keydown", (e) => {
@@ -91,7 +105,10 @@ document.addEventListener("keydown", (e) => {
       mario.directions.right = true;
       break;
     case "ArrowUp":
-      mario.jumping = true;
+      if (!mario.jumping) {
+        mario.jumping = true;
+        mario.jumpFrame = 0;
+      }
       break;
     case "ArrowDown":
       mario.directions.down = true;
@@ -106,151 +123,81 @@ document.addEventListener("keydown", (e) => {
       mario.directions.left = true;
       break;
     case "d":
-      mario.directions.right = true;
-      break;
+      mario.directions.right = true
 
-    default:
-      break;
+if (
+  mario.x < rocket.position.x + rocket.width &&
+  mario.x + mario.width > rocket.position.x
+) {
+  // y led kollisison
+  if (
+    mario.y + mario.height >= rocket.position.y &&
+    mario.y < rocket.position.y + rocket.height
+  ) {
+    mario.lives--;
+    console.log(`Mario hit by rocket! ${mario.lives} lives left.`);
   }
-});
-
-document.addEventListener("keyup", (e) => {
-  switch (e.key) {
-    case "ArrowLeft":
-      mario.directions.left = false;
-      break;
-    case "ArrowRight":
-      mario.directions.right = false;
-      break;
-    case "ArrowUp":
-      mario.directions.up = false;
-
-      break;
-    case "ArrowDown":
-      mario.directions.down = false;
-      break;
-    case "w":
-      luigi.directions.up = false;
-      break;
-    case "s":
-      luigi.directions.down = false;
-      break;
-    case "a":
-      luigi.directions.left = false;
-      break;
-    case "d":
-      luigi.directions.right = false;
-      break;
-    default:
-      break;
-  }
-});
-
-function animate() {
-  requestAnimationFrame(animate);
-  c.clearRect(0, 0, innerWidth, innerHeight);
-  c.drawImage(marioImage, mario.x, mario.y, mario.width, mario.height);
-  c.drawImage(luigiImage, luigi.x, luigi.y, luigi.width, luigi.height);
-
-  console.log(platforms.x);
-
-  // platforms.forEach((platform) => {
-  //   platform.draw();
-  //   //Kolliderar mario med plattform?
-
-  //   if (
-  //     mario.x < platform.x + platform.width &&
-  //     mario.x + mario.width > platform.x &&
-  //     mario.y < platform.y + platform.height &&
-  //     mario.y + mario.height > platform.y
-  //   ) {
-  //     mario.y -= GRAVITY;
-  //   }
-  // });
-
-  platforms.forEach((platform) => {
-    platform.draw();
-
-    // horisontal kollision
-    if (
-      mario.x < platform.position.x + platform.width &&
-      mario.x + mario.width > platform.position.x
-    ) {
-      // y led kollisison
-      if (
-        mario.y + mario.height >= platform.position.y &&
-        mario.y < platform.position.y
-      ) {
-        // marios position uppe på plattformen
-        mario.y = platform.position.y - mario.height;
-        mario.jumping = false;
-      }
-    }
-  });
-
-  //Hopp
-  if (mario.jumping && mario.jumpFrame < 10) {
-      for (let i = 0; i < 100; i++) {
-            mario.jumpFrame=mario.jumpFra
-        
-      }
-   
-
-  // Är mario på marken?
-  if (mario.y >= myCanvas.height - 150) {
-    mario.jumping = false;
-    mario.jumpFrame = 0;
-  } else {
-    mario.y += GRAVITY;
-  }
-
-  // Mario gå höger
-  if (mario.directions.right) {
-    console.log("x = ", mario.x);
-    if (mario.x < myCanvas.width - mario.width) {
-      mario.x += mario.dx;
-    }
-  }
-
-  //mario gå vänster
-  if (mario.directions.left) {
-    if (mario.x > 0) {
-      mario.x -= mario.dx;
-    }
-  }
-
-  //Luigi vänster
-  if (luigi.directions.right) {
-    console.log("x1 =", luigi.x);
-    if (luigi.x < myCanvas.width - luigi.width) {
-      luigi.x += luigi.dx;
-    }
-  }
-  // Luigi höger
-  if (luigi.directions.left) {
-    console.log("x1 = ", luigi.x);
-    if (luigi.x > 0) {
-      luigi.x -= luigi.dx;
-    }
-  }
-  if (luigi.directions.up) {
-    luigi.y -= luigi.dy;
-  }
-  if (luigi.directions.down) {
-    console.log("y1 =", luigi.y);
-    if (luigi.y < 500) {
-      luigi.y += luigi.dy;
-    }
-  }
-
-  if (mario.y + mario.height + 30 < myCanvas.height) {
-    mario.y += 12;
-  }
-  if (luigi.y + luigi.width + 30 < myCanvas.height) {
-    luigi.y += 12;
-  }
-
-  console.log(mario.jumping, mario.jumpFrame);
 }
+
+if (
+  luigi.x < rocket.position.x + rocket.width &&
+  luigi.x + luigi.width > rocket.position.x
+) {
+  // y led kollisison
+  if (
+    luigi.y + luigi.height >= rocket.position.y &&
+    luigi.y < rocket.position.y + rocket.height
+  ) {
+    luigi.lives--;
+    console.log(`Luigi hit by rocket! ${luigi.lives} lives left.`);
+  }
+}
+});
+
+if (mario.jumping) {
+mario.jumpFrame++;
+if (mario.jumpFrame < 20) {
+  mario.y -= mario.dy / 10;
+} else if (mario.jumpFrame < 40) {
+  mario.y += mario.dy / 10;
+} else {
+  mario.jumpFrame = 0;
+}
+}
+
+if (mario.directions.left) {
+mario.x -= mario.dx;
+}
+if (mario.directions.right) {
+mario.x += mario.dx;
+}
+
+if (!mario.jumping) {
+mario.y += GRAVITY;
+}
+
+if (luigi.directions.up) {
+luigi.y -= luigi.dy / 10;
+}
+if (luigi.directions.down) {
+luigi.y += luigi.dy / 10;
+}
+if (luigi.directions.left) {
+luigi.x -= luigi.dx;
+}
+if (luigi.directions.right) {
+luigi.x += luigi.dx;
+}
+
+if (mario.y > innerHeight) {
+mario.lives--;
+console.log('Mario fell off the screen! ${mario.lives} lives left.');
+}
+
+if (luigi.y > innerHeight) {
+luigi.lives--;
+console.log('Luigi fell off the screen! ${luigi.lives} lives left.');
+}
+
 
 animate();

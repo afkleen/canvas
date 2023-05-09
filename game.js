@@ -58,27 +58,68 @@ class Platform {
     (this.width = width), (this.height = height);
   }
   draw() {
-    c.fillStyle = "red";
+    c.fillStyle = "limegreen";
     c.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 }
+class Rocket {
+  constructor({ x, y, width, height }) {
+    this.position = {
+      x,
+      y,
+    };
 
-// function Faller(mario) {
-//   for (let i = 0; i < Platformlista.length; i++) {
-//     const element = array[i];
-//     if (
-//       mario.y + mario.height == Platformlista[i].varY &&
-//       Platformlista[i].varX < mario.x + mario.width &&
-//       mario.x < Platformlista[i].varX + Platformlista[i].längdX
-//     ) {
-//       return true;
-//     }
-//   }
-// }
+    this.velocity = Math.random() * 6; // Random velocity between -3 and 3
+
+    (this.width = width), (this.height = height);
+  }
+
+  draw() {
+    c.fillStyle = "red";
+    c.fillRect(this.position.x, this.position.y, this.width, this.height);
+  }
+
+  update() {
+    this.draw();
+    this.position.x += this.velocity;
+
+    if (this.position.x > innerWidth) {
+      this.position.x = this.width; // reset to left edge
+      this.position.y = Math.random() * innerHeight; // new random y-coordinate
+    }
+  }
+}
+
+let lastRocketTime = 0;
+let rocketFrequency = 0.000000000001; // number of rockets per second
+
+function updateRockets() {
+  let time = Date.now();
+  let dt = time - lastRocketTime;
+  let numRockets = Math.floor(dt * rocketFrequency) / 1000;
+
+  for (let i = 0; i < numRockets; i++) {
+    let rocketY = Math.random() * innerHeight;
+    let rocket = new Rocket({
+      x: innerWidth,
+      y: rocketY,
+      width: 40,
+      height: 40,
+    });
+    rockets.push(rocket);
+  }
+
+  lastRocketTime = time;
+}
 
 const platforms = [
-  new Platform({ x: 100, y: 200, width: 200, height: 25 }),
+  new Platform({ x: 100, y: 200, width: 100, height: 20 }),
   new Platform({ x: 500, y: 400, width: 300, height: 30 }),
+];
+
+const rockets = [
+  new Rocket({ x: 50, y: 100, width: 40, height: 40 }),
+  new Rocket({ x: 600, y: 300, width: 40, height: 40 }),
 ];
 
 document.addEventListener("keydown", (e) => {
@@ -91,6 +132,8 @@ document.addEventListener("keydown", (e) => {
       break;
     case "ArrowUp":
       mario.jumping = true;
+      console.log("HOPP");
+
       break;
     case "ArrowDown":
       mario.directions.down = true;
@@ -150,22 +193,10 @@ function animate() {
   c.clearRect(0, 0, innerWidth, innerHeight);
   c.drawImage(marioImage, mario.x, mario.y, mario.width, mario.height);
   c.drawImage(luigiImage, luigi.x, luigi.y, luigi.width, luigi.height);
+  updateRockets();
 
   console.log(platforms.x);
-
-  // platforms.forEach((platform) => {
-  //   platform.draw();
-  //   //Kolliderar mario med plattform?
-
-  //   if (
-  //     mario.x < platform.x + platform.width &&
-  //     mario.x + mario.width > platform.x &&
-  //     mario.y < platform.y + platform.height &&
-  //     mario.y + mario.height > platform.y
-  //   ) {
-  //     mario.y -= GRAVITY;
-  //   }
-  // });
+  console.log(rockets.x);
 
   platforms.forEach((platform) => {
     platform.draw();
@@ -181,35 +212,73 @@ function animate() {
         mario.y < platform.position.y
       ) {
         // marios position uppe på plattformen
-        mario.y = platform.position.y - mario.height;
+
         mario.jumping = false;
+
+        mario.y = platform.position.y - mario.height;
       }
     }
   });
 
-  //Hopp
-  if (mario.jumping && mario.jumpFrame < 10) {
-    mario.y -= 50;
-    mario.jumpFrame += 1;
-  } else if (
-    mario.jumping &&
-    mario.jumpFrame >= 10 &&
-    mario.jumping &&
-    mario.jumpFrame < 20
-  ) {
-    mario.y -= 40;
-    mario.jumpFrame += 1;
-  } else if (
-    mario.jumping &&
-    mario.jumpFrame >= 20 &&
-    mario.jumping &&
-    mario.jumpFrame < 30
-  ) {
-    mario.y -= 30;
-    mario.jumpFrame += 1;
-  } else if (mario.jumping && mario.jumpFrame >= 30) {
-    mario.jumpFrame += 1;
+  rockets.forEach((rocket) => {
+    rocket.update();
+
+    // // horisontal kollision
+    // if (
+    //   mario.x < rocket.position.x + rocket.width &&
+    //   mario.x + mario.width > rocket.position.x
+    // ) {
+    //   // y led kollisison
+    //   if (
+    //     mario.y + mario.height >= rocket.position.y &&
+    //     mario.y < rocket.position.y
+    //   ) {
+    //     // marios position uppe på plattformen
+
+    //     mario.y = rocket.position.y - mario.height;
+    //   }
+    // }
+  });
+
+  if (mario.jumping) {
+    if (mario.jumpFrame < 10) {
+      mario.y -= 50;
+      mario.jumpFrame += 1;
+    } else if (mario.jumpFrame >= 10 && mario.jumpFrame < 20) {
+      mario.y -= 40;
+      mario.jumpFrame += 1;
+    } else if (mario.jumpFrame >= 20 && mario.jumpFrame < 30) {
+      mario.y -= 30;
+      mario.jumpFrame += 1;
+    } else if (mario.jumpFrame >= 30) {
+      mario.jumpFrame += 1;
+    }
   }
+
+  //Hopp
+
+  // if (mario.jumping && mario.jumpFrame < 10) {
+  //   mario.y -= 50;
+  //   mario.jumpFrame += 1;
+  // } else if (
+  //   mario.jumping &&
+  //   mario.jumpFrame >= 10 &&
+  //   mario.jumping &&
+  //   mario.jumpFrame < 20
+  // ) {
+  //   mario.y -= 40;
+  //   mario.jumpFrame += 1;
+  // } else if (
+  //   mario.jumping &&
+  //   mario.jumpFrame >= 20 &&
+  //   mario.jumping &&
+  //   mario.jumpFrame < 30
+  // ) {
+  //   mario.y -= 30;
+  //   mario.jumpFrame += 1;
+  // } else if (mario.jumping && mario.jumpFrame >= 30) {
+  //   mario.jumpFrame += 1;
+  // }
 
   // Är mario på marken?
   if (mario.y >= myCanvas.height - 150) {
