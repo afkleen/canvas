@@ -17,7 +17,7 @@ let mario = {
   height: 100,
   x: 0,
   y: 0,
-  dx: 10,
+  dx: 8,
   dy: 100,
   lives: 1,
   score: 0,
@@ -205,6 +205,14 @@ function animate() {
   console.log(platforms.x);
   console.log(rockets.x);
 
+  mario.score = mario.x;
+
+  c.font = "30px Arial";
+  c.fillText(`Marios Score: ${mario.score}`, 10, 50);
+  c.fillText(`Luigi Score: ${luigi.score}`, 10, 80);
+  c.fillText(`Mario Lifes: ${mario.lives}`, 1000, 50);
+  c.fillText(`Luigi Lifes: ${luigi.lives}`, 1000, 80);
+
   platforms.forEach((platform) => {
     platform.draw();
 
@@ -227,21 +235,15 @@ function animate() {
   rockets.forEach((rocket) => {
     rocket.update();
 
-    // // horisontal kollision
-    // if (
-    //   mario.x < rocket.position.x + rocket.width &&
-    //   mario.x + mario.width > rocket.position.x
-    // ) {
-    //   // y led kollisison
-    //   if (
-    //     mario.y + mario.height >= rocket.position.y &&
-    //     mario.y < rocket.position.y
-    //   ) {
-    //     // marios position uppe på plattformen
-
-    //     mario.y = rocket.position.y - mario.height;
-    //   }
-    // }
+    // horisontal kollision
+    if (
+      mario.x < rocket.position.x + rocket.width &&
+      mario.x + mario.width > rocket.position.x &&
+      mario.y + mario.height >= rocket.position.y &&
+      mario.y < rocket.position.y
+    ) {
+      c.fillText(`MARIO DOG`, 500, 250);
+    }
   });
 
   if (mario.velocity != 0) {
@@ -265,32 +267,6 @@ function animate() {
     }
   }
 
-  //Hopp
-
-  // if (mario.jumping && mario.jumpFrame < 10) {
-  //   mario.y -= 50;
-  //   mario.jumpFrame += 1;
-  // } else if (
-  //   mario.jumping &&
-  //   mario.jumpFrame >= 10 &&
-  //   mario.jumping &&
-  //   mario.jumpFrame < 20
-  // ) {
-  //   mario.y -= 40;
-  //   mario.jumpFrame += 1;
-  // } else if (
-  //   mario.jumping &&
-  //   mario.jumpFrame >= 20 &&
-  //   mario.jumping &&
-  //   mario.jumpFrame < 30
-  // ) {
-  //   mario.y -= 30;
-  //   mario.jumpFrame += 1;
-  // } else if (mario.jumping && mario.jumpFrame >= 30) {
-  //   mario.jumpFrame += 1;
-  // }
-
-  // Är mario på marken?
   if (mario.y >= myCanvas.height - 150) {
     mario.jumping = false;
     mario.jumpFrame = 0;

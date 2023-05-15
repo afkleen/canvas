@@ -4,6 +4,18 @@
   overflow: hidden;
 }
 
+@keyframes text-animation {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 #myCanvas {
   border: 5px solid;
   margin-left: auto;
@@ -12,6 +24,7 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-position: bottom;
+  animation: text-animation 5s linear;
 }
 
 #mario {
