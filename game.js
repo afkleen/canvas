@@ -8,6 +8,7 @@ myCanvas.height = innerHeight;
 
 let marioImage = document.getElementById("mario");
 let luigiImage = document.getElementById("luigi");
+let rocketImage = document.getElementById("rocket");
 
 const GRAVITY = 10;
 
@@ -16,7 +17,7 @@ let mario = {
   height: 100,
   x: 0,
   y: 0,
-  dx: 5,
+  dx: 10,
   dy: 100,
   lives: 1,
   score: 0,
@@ -28,6 +29,7 @@ let mario = {
     up: false,
     down: false,
   },
+  velocity: 0,
 };
 
 let luigi = {
@@ -58,7 +60,7 @@ class Platform {
     (this.width = width), (this.height = height);
   }
   draw() {
-    c.fillStyle = "limegreen";
+    c.fillStyle = "brown";
     c.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 }
@@ -69,29 +71,35 @@ class Rocket {
       y,
     };
 
-    this.velocity = Math.random() * 6; // Random velocity between -3 and 3
+    this.velocity = Math.random() * 8 + 3;
 
     (this.width = width), (this.height = height);
   }
 
   draw() {
     c.fillStyle = "red";
-    c.fillRect(this.position.x, this.position.y, this.width, this.height);
+    c.drawImage(
+      rocketImage,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height
+    );
   }
 
   update() {
     this.draw();
-    this.position.x += this.velocity;
+    this.position.x -= this.velocity;
 
-    if (this.position.x > innerWidth) {
-      this.position.x = this.width; // reset to left edge
-      this.position.y = Math.random() * innerHeight; // new random y-coordinate
+    if (this.position.x < 0) {
+      this.position.x = this.width + innerWidth;
+      this.position.y = Math.random() * innerHeight;
     }
   }
 }
 
 let lastRocketTime = 0;
-let rocketFrequency = 0.000000000001; // number of rockets per second
+let rocketFrequency = 0.0000000001;
 
 function updateRockets() {
   let time = Date.now();
@@ -103,7 +111,7 @@ function updateRockets() {
     let rocket = new Rocket({
       x: innerWidth,
       y: rocketY,
-      width: 40,
+      width: 50,
       height: 40,
     });
     rockets.push(rocket);
@@ -118,8 +126,8 @@ const platforms = [
 ];
 
 const rockets = [
-  new Rocket({ x: 50, y: 100, width: 40, height: 40 }),
-  new Rocket({ x: 600, y: 300, width: 40, height: 40 }),
+  new Rocket({ x: 50, y: 100, width: 50, height: 40 }),
+  new Rocket({ x: 600, y: 300, width: 50, height: 40 }),
 ];
 
 document.addEventListener("keydown", (e) => {
@@ -131,9 +139,10 @@ document.addEventListener("keydown", (e) => {
       mario.directions.right = true;
       break;
     case "ArrowUp":
-      mario.jumping = true;
       console.log("HOPP");
-
+      if (mario.velocity <= 0) {
+        mario.velocity = 1;
+      }
       break;
     case "ArrowDown":
       mario.directions.down = true;
@@ -165,8 +174,6 @@ document.addEventListener("keyup", (e) => {
       mario.directions.right = false;
       break;
     case "ArrowUp":
-      mario.directions.up = false;
-
       break;
     case "ArrowDown":
       mario.directions.down = false;
@@ -212,9 +219,6 @@ function animate() {
         mario.y < platform.position.y
       ) {
         // marios position uppe på plattformen
-
-        mario.jumping = false;
-
         mario.y = platform.position.y - mario.height;
       }
     }
@@ -240,18 +244,24 @@ function animate() {
     // }
   });
 
-  if (mario.jumping) {
-    if (mario.jumpFrame < 10) {
+  if (mario.velocity != 0) {
+    if (mario.velocity < 10) {
       mario.y -= 50;
-      mario.jumpFrame += 1;
-    } else if (mario.jumpFrame >= 10 && mario.jumpFrame < 20) {
+      mario.velocity += 1;
+    } else if (mario.velocity >= 10 && mario.velocity < 20) {
       mario.y -= 40;
-      mario.jumpFrame += 1;
-    } else if (mario.jumpFrame >= 20 && mario.jumpFrame < 30) {
+      mario.velocity += 1;
+    } else if (mario.velocity >= 20 && mario.velocity < 30) {
       mario.y -= 30;
-      mario.jumpFrame += 1;
-    } else if (mario.jumpFrame >= 30) {
-      mario.jumpFrame += 1;
+      mario.velocity += 1;
+    } else if (mario.velocity >= 30 && mario.velocity < 40) {
+      mario.y -= -10;
+      mario.velocity += 1;
+    } else if (mario.velocity >= 40 && mario.velocity < 50) {
+      mario.y -= -5;
+      mario.velocity += 1;
+    } else if (mario.velocity >= 50) {
+      mario.velocity = 0;
     }
   }
 
@@ -334,7 +344,7 @@ function animate() {
     luigi.y += 12;
   }
 
-  console.log(mario.jumping, mario.jumpFrame);
+  console.log(mario.jumping, mario.jumpFrame, `velocity: ${mario.velocity} `);
 }
 
 animate();

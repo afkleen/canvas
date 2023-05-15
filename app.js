@@ -8,6 +8,7 @@ myCanvas.height = innerHeight;
 
 let marioImage = document.getElementById("mario");
 let luigiImage = document.getElementById("luigi");
+let rocketImage = document.getElementById("rocket");
 
 const GRAVITY = 10;
 const JUMP_VELOCITY = -50;
@@ -123,81 +124,81 @@ document.addEventListener("keydown", (e) => {
       mario.directions.left = true;
       break;
     case "d":
-      mario.directions.right = true
-
-if (
-  mario.x < rocket.position.x + rocket.width &&
-  mario.x + mario.width > rocket.position.x
-) {
-  // y led kollisison
-  if (
-    mario.y + mario.height >= rocket.position.y &&
-    mario.y < rocket.position.y + rocket.height
-  ) {
-    mario.lives--;
-    console.log(`Mario hit by rocket! ${mario.lives} lives left.`);
+      mario.directions.right = true;
   }
-}
 
-if (
-  luigi.x < rocket.position.x + rocket.width &&
-  luigi.x + luigi.width > rocket.position.x
-) {
-  // y led kollisison
   if (
-    luigi.y + luigi.height >= rocket.position.y &&
-    luigi.y < rocket.position.y + rocket.height
+    mario.x < rocket.position.x + rocket.width &&
+    mario.x + mario.width > rocket.position.x
   ) {
-    luigi.lives--;
-    console.log(`Luigi hit by rocket! ${luigi.lives} lives left.`);
+    // y led kollisison
+    if (
+      mario.y + mario.height >= rocket.position.y &&
+      mario.y < rocket.position.y + rocket.height
+    ) {
+      mario.lives--;
+      console.log(`Mario hit by rocket! ${mario.lives} lives left.`);
+    }
   }
-}
+
+  if (
+    luigi.x < rocket.position.x + rocket.width &&
+    luigi.x + luigi.width > rocket.position.x
+  ) {
+    // y led kollisison
+    if (
+      luigi.y + luigi.height >= rocket.position.y &&
+      luigi.y < rocket.position.y + rocket.height
+    ) {
+      luigi.lives--;
+      console.log(`Luigi hit by rocket! ${luigi.lives} lives left.`);
+    }
+  }
 });
 
-if (mario.jumping) {
-mario.jumpFrame++;
-if (mario.jumpFrame < 20) {
-  mario.y -= mario.dy / 10;
-} else if (mario.jumpFrame < 40) {
-  mario.y += mario.dy / 10;
-} else {
-  mario.jumpFrame = 0;
-}
-}
+// if (mario.jumping) {
+//   mario.jumpFrame++;
+//   if (mario.jumpFrame < 20) {
+//     mario.y -= mario.dy / 10;
+//   } else if (mario.jumpFrame < 40) {
+//     mario.y += mario.dy / 10;
+//   } else {
+//     mario.jumpFrame = 0;
+//   }
+// }
 
 if (mario.directions.left) {
-mario.x -= mario.dx;
+  mario.x -= mario.dx;
 }
 if (mario.directions.right) {
-mario.x += mario.dx;
+  mario.x += mario.dx;
 }
 
 if (!mario.jumping) {
-mario.y += GRAVITY;
+  mario.y += GRAVITY;
 }
 
 if (luigi.directions.up) {
-luigi.y -= luigi.dy / 10;
+  luigi.y -= luigi.dy / 10;
 }
 if (luigi.directions.down) {
-luigi.y += luigi.dy / 10;
+  luigi.y += luigi.dy / 10;
 }
 if (luigi.directions.left) {
-luigi.x -= luigi.dx;
+  luigi.x -= luigi.dx;
 }
 if (luigi.directions.right) {
-luigi.x += luigi.dx;
+  luigi.x += luigi.dx;
 }
 
 if (mario.y > innerHeight) {
-mario.lives--;
-console.log('Mario fell off the screen! ${mario.lives} lives left.');
+  mario.lives--;
+  console.log("Mario fell off the screen! ${mario.lives} lives left.");
 }
 
 if (luigi.y > innerHeight) {
-luigi.lives--;
-console.log('Luigi fell off the screen! ${luigi.lives} lives left.');
+  luigi.lives--;
+  console.log("Luigi fell off the screen! ${luigi.lives} lives left.");
 }
-
 
 animate();
