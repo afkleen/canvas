@@ -21,6 +21,8 @@ let mario = {
   dy: 100,
   lives: 1,
   score: 0,
+  dead: false,
+  cooldown: 0,
   jumpFrame: 0,
   jumping: false,
   directions: {
@@ -99,7 +101,13 @@ class Rocket {
 }
 
 let lastRocketTime = 0;
-let rocketFrequency = 0.0000000001;
+let rocketFrequency = 0;
+
+if (mario.x >= 0 && mario.x <= 400) {
+  rocketFrequency = 0.000000000000000000001;
+} else if (mario.x >= 400) {
+  rocketFrequency = 0.000001;
+}
 
 function updateRockets() {
   let time = Date.now();
@@ -197,13 +205,26 @@ document.addEventListener("keyup", (e) => {
 
 function animate() {
   requestAnimationFrame(animate);
+
+  console.log(mario.dead);
+  if (mario.dead) {
+    c.font = "30px Arial";
+    c.fillText("AAAAA", 200, 200);
+    console.log("ded");
+    mario.cooldown += 1;
+    if (mario.cooldown == 100) {
+      mario.dead = false;
+      mario.cooldown = 0;
+    }
+  }
+
   c.clearRect(0, 0, innerWidth, innerHeight);
   c.drawImage(marioImage, mario.x, mario.y, mario.width, mario.height);
   c.drawImage(luigiImage, luigi.x, luigi.y, luigi.width, luigi.height);
   updateRockets();
 
-  console.log(platforms.x);
-  console.log(rockets.x);
+  // console.log(platforms.x);
+  // console.log(rockets.x);
 
   mario.score = mario.x;
 
@@ -214,20 +235,25 @@ function animate() {
   c.fillText(`Luigi Lifes: ${luigi.lives}`, 1000, 80);
 
   platforms.forEach((platform) => {
+    // console.log(platform);
+    // if (mario.x > 550) {
+    //   platform.position.x -= mario.dx;
+    // }
+    // if (mario)
+
     platform.draw();
 
-    // horisontal kollision
-    if (
-      mario.x < platform.position.x + platform.width &&
-      mario.x + mario.width > platform.position.x
-    ) {
-      // y led kollisison
+    if (mario.directions.down == false) {
       if (
-        mario.y + mario.height >= platform.position.y &&
-        mario.y < platform.position.y
+        mario.x < platform.position.x + platform.width &&
+        mario.x + mario.width > platform.position.x
       ) {
-        // marios position uppe på plattformen
-        mario.y = platform.position.y - mario.height;
+        if (
+          mario.y + mario.height >= platform.position.y &&
+          mario.y < platform.position.y
+        ) {
+          mario.y = platform.position.y - mario.height;
+        }
       }
     }
   });
@@ -242,7 +268,9 @@ function animate() {
       mario.y + mario.height >= rocket.position.y &&
       mario.y < rocket.position.y
     ) {
-      c.fillText(`MARIO DOG`, 500, 250);
+      mario.dead = true;
+      mario.x = 0;
+      mario.y = innerHeight / 2;
     }
   });
 
@@ -276,7 +304,7 @@ function animate() {
 
   // Mario gå höger
   if (mario.directions.right) {
-    console.log("x = ", mario.x);
+    // console.log("x = ", mario.x);
     if (mario.x < myCanvas.width - mario.width) {
       mario.x += mario.dx;
     }
@@ -291,14 +319,14 @@ function animate() {
 
   //Luigi vänster
   if (luigi.directions.right) {
-    console.log("x1 =", luigi.x);
+    // console.log("x1 =", luigi.x);
     if (luigi.x < myCanvas.width - luigi.width) {
       luigi.x += luigi.dx;
     }
   }
   // Luigi höger
   if (luigi.directions.left) {
-    console.log("x1 = ", luigi.x);
+    // console.log("x1 = ", luigi.x);
     if (luigi.x > 0) {
       luigi.x -= luigi.dx;
     }
@@ -307,7 +335,7 @@ function animate() {
     luigi.y -= luigi.dy;
   }
   if (luigi.directions.down) {
-    console.log("y1 =", luigi.y);
+    // console.log("y1 =", luigi.y);
     if (luigi.y < 500) {
       luigi.y += luigi.dy;
     }
@@ -320,7 +348,7 @@ function animate() {
     luigi.y += 12;
   }
 
-  console.log(mario.jumping, mario.jumpFrame, `velocity: ${mario.velocity} `);
+  // console.log(mario.jumping, mario.jumpFrame, `velocity: ${mario.velocity} `);
 }
 
 animate();
