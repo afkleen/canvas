@@ -20,15 +20,18 @@
   border: 5px solid;
   margin-left: auto;
   margin-right: auto;
-  background-image: url();
+  background-image: url(sarvendara-lv-game-background.png);
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: bottom;
-  animation: text-animation 5s linear;
+  background-position: top;
 }
 
+#marioMap {
+  display: none;
+}
 #mario {
   display: none;
+  border: 1px;
 }
 
 #luigi {

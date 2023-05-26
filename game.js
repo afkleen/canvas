@@ -13,8 +13,8 @@ let rocketImage = document.getElementById("rocket");
 const GRAVITY = 10;
 
 let mario = {
-  width: 100,
-  height: 100,
+  width: 70,
+  height: 70,
   x: 0,
   y: 0,
   dx: 8,
@@ -53,16 +53,19 @@ let luigi = {
 };
 
 class Platform {
-  constructor({ x, y, width, height }) {
+  constructor({ x, y, width, height, type, color }) {
     this.position = {
       x,
       y,
     };
 
-    (this.width = width), (this.height = height);
+    this.width = width;
+    this.height = height;
+    this.type = type;
+    this.color = color;
   }
   draw() {
-    c.fillStyle = "brown";
+    c.fillStyle = this.color;
     c.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 }
@@ -73,7 +76,7 @@ class Rocket {
       y,
     };
 
-    this.velocity = Math.random() * 8 + 3;
+    this.velocity = Math.random() * 1 + 3;
 
     (this.width = width), (this.height = height);
   }
@@ -104,9 +107,7 @@ let lastRocketTime = 0;
 let rocketFrequency = 0;
 
 if (mario.x >= 0 && mario.x <= 400) {
-  rocketFrequency = 0.000000000000000000001;
-} else if (mario.x >= 400) {
-  rocketFrequency = 0.000001;
+  rocketFrequency = 0.000000000000000000000001;
 }
 
 function updateRockets() {
@@ -129,8 +130,39 @@ function updateRockets() {
 }
 
 const platforms = [
-  new Platform({ x: 100, y: 200, width: 100, height: 20 }),
-  new Platform({ x: 500, y: 400, width: 300, height: 30 }),
+  new Platform({
+    x: 100,
+    y: 200,
+    width: 100,
+    height: 20,
+    type: { solid: false, normal: true },
+    color: "brown",
+  }),
+
+  new Platform({
+    x: 500,
+    y: 400,
+    width: 300,
+    height: 30,
+    type: { pipe: false, normal: true },
+    color: "brown",
+  }),
+  new Platform({
+    x: 100,
+    y: 100,
+    width: 350,
+    height: 30,
+    type: { pipe: false, normal: true },
+    color: "brown",
+  }),
+  new Platform({
+    x: 1100,
+    y: 400,
+    width: 100,
+    height: 200,
+    type: { pipe: true, normal: false },
+    color: "darkgreen",
+  }),
 ];
 
 const rockets = [
@@ -147,7 +179,7 @@ document.addEventListener("keydown", (e) => {
       mario.directions.right = true;
       break;
     case "ArrowUp":
-      console.log("HOPP");
+      // console.log("HOPP");
       if (mario.velocity <= 0) {
         mario.velocity = 1;
       }
@@ -159,13 +191,13 @@ document.addEventListener("keydown", (e) => {
       luigi.directions.up = true;
       break;
     case "s":
-      mario.directions.down = true;
+      luigi.directions.down = true;
       break;
     case "a":
-      mario.directions.left = true;
+      luigi.directions.left = true;
       break;
     case "d":
-      mario.directions.right = true;
+      luigi.directions.right = true;
       break;
 
     default:
@@ -206,11 +238,12 @@ document.addEventListener("keyup", (e) => {
 function animate() {
   requestAnimationFrame(animate);
 
-  console.log(mario.dead);
+  mario.score += 1;
+  // console.log(mario.dead);
   if (mario.dead) {
     c.font = "30px Arial";
     c.fillText("AAAAA", 200, 200);
-    console.log("ded");
+    // console.log("ded");
     mario.cooldown += 1;
     if (mario.cooldown == 100) {
       mario.dead = false;
@@ -225,8 +258,6 @@ function animate() {
 
   // console.log(platforms.x);
   // console.log(rockets.x);
-
-  mario.score = mario.x;
 
   c.font = "30px Arial";
   c.fillText(`Marios Score: ${mario.score}`, 10, 50);
@@ -243,7 +274,24 @@ function animate() {
 
     platform.draw();
 
-    if (mario.directions.down == false) {
+    if (platform.type.normal) {
+      console.log(platform.type);
+      // console.log(platform.type.solid);
+      if (mario.directions.down == false) {
+        if (
+          mario.x < platform.position.x + platform.width &&
+          mario.x + mario.width > platform.position.x
+        ) {
+          if (
+            mario.y + mario.height >= platform.position.y &&
+            mario.y < platform.position.y
+          ) {
+            mario.y = platform.position.y - mario.height;
+          }
+        }
+      }
+    }
+    if (platform.type.pipe) {
       if (
         mario.x < platform.position.x + platform.width &&
         mario.x + mario.width > platform.position.x
@@ -254,6 +302,20 @@ function animate() {
         ) {
           mario.y = platform.position.y - mario.height;
         }
+      }
+
+      if (mario.x > platform.position.x - platform.width) {
+      }
+
+      // om han kickar ner och står åp så tpas han
+      if (
+        mario.directions.down == true &&
+        mario.x < platform.position.x + platform.width &&
+        mario.x + mario.width > platform.position.x &&
+        mario.y + mario.height >= platform.position.y &&
+        mario.y < platform.position.y
+      ) {
+        mario.x = 0;
       }
     }
   });
@@ -268,9 +330,10 @@ function animate() {
       mario.y + mario.height >= rocket.position.y &&
       mario.y < rocket.position.y
     ) {
-      mario.dead = true;
-      mario.x = 0;
-      mario.y = innerHeight / 2;
+      // mario.dead = true;
+      // mario.x = 0;
+      // mario.y = innerHeight / 2;
+      // mario.score = 0;
     }
   });
 
