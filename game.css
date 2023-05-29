@@ -80,3 +80,8 @@
   animation: hake 3s;
   animation-iteration-count: infinite;
 }
+
+#platformNormal {
+  background-repeat: no-repeat;
+  background-size: contain;
+}

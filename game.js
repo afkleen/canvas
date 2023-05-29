@@ -11,6 +11,9 @@ const mario3 = document.getElementById("jump3");
 const jump1 = document.getElementById("jump1");
 let luigiImage = document.getElementById("luigi");
 let rocketImage = document.getElementById("rocket");
+let turtleImage = document.getElementById("turtle");
+let platformNormal = document.getElementById("platformNormal");
+let pipeImage = document.getElementById("pipeimg");
 
 const GRAVITY = 10;
 
@@ -37,8 +40,8 @@ let mario = {
 };
 
 let luigi = {
-  width: 100,
-  height: 100,
+  width: 0,
+  height: 0,
   x: 0,
   y: 0,
   dx: 5,
@@ -55,7 +58,7 @@ let luigi = {
 };
 
 class Platform {
-  constructor({ x, y, width, height, type, color }) {
+  constructor({ x, y, width, height, type, image }) {
     this.position = {
       x,
       y,
@@ -64,11 +67,17 @@ class Platform {
     this.width = width;
     this.height = height;
     this.type = type;
-    this.color = color;
+    this.image = image;
   }
   draw() {
     c.fillStyle = this.color;
-    c.fillRect(this.position.x, this.position.y, this.width, this.height);
+    c.drawImage(
+      this.image,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height
+    );
   }
 }
 class Rocket {
@@ -78,7 +87,7 @@ class Rocket {
       y,
     };
 
-    this.velocity = Math.random() * 1 + 3;
+    this.velocity = Math.random() * 6 + 3;
 
     (this.width = width), (this.height = height);
   }
@@ -100,17 +109,13 @@ class Rocket {
 
     if (this.position.x < 0) {
       this.position.x = this.width + innerWidth;
-      this.position.y = Math.random() * innerHeight;
+      this.position.y = Math.random() * innerHeight - 100;
     }
   }
 }
 
 let lastRocketTime = 0;
 let rocketFrequency = 0;
-
-if (mario.x >= 0 && mario.x <= 400) {
-  rocketFrequency = 0.000000000000000000000001;
-}
 
 function updateRockets() {
   let time = Date.now();
@@ -138,7 +143,7 @@ class Turtle {
       y,
     };
 
-    this.velocity = Math.random() * 10 + 3;
+    this.velocity = Math.random() * 5 + 3;
 
     (this.width = width), (this.height = height);
   }
@@ -146,7 +151,7 @@ class Turtle {
   draw() {
     c.fillStyle = "red";
     c.drawImage(
-      rocketImage,
+      turtleImage,
       this.position.x,
       this.position.y,
       this.width,
@@ -158,9 +163,14 @@ class Turtle {
     this.draw();
     this.position.x -= this.velocity;
 
-    if (this.position.x < 0) {
-      this.position.x = this.width + innerWidth;
-      this.position.y = innerHeight - 150;
+    if (this.position.x + turtle.width < 0) {
+      this.velocity = -this.velocity;
+      this.position.y = innerHeight - 60;
+    }
+
+    if (this.position.x > innerWidth) {
+      this.velocity = -this.velocity;
+      this.position.y = innerHeight - 60;
     }
   }
 }
@@ -186,29 +196,29 @@ function updateTurtles() {
 
 const platforms = [
   new Platform({
-    x: 100,
-    y: 200,
+    x: 900,
+    y: 250,
     width: 100,
-    height: 20,
+    height: 30,
     type: { solid: false, normal: true },
-    color: "brown",
+    image: platformNormal,
   }),
 
   new Platform({
     x: 500,
     y: 400,
-    width: 300,
-    height: 30,
-    type: { pipe: false, normal: true },
-    color: "brown",
-  }),
-  new Platform({
-    x: 100,
-    y: 100,
     width: 350,
     height: 30,
     type: { pipe: false, normal: true },
-    color: "brown",
+    image: platformNormal,
+  }),
+  new Platform({
+    x: 100,
+    y: 200,
+    width: 300,
+    height: 30,
+    type: { pipe: false, normal: true },
+    image: platformNormal,
   }),
   new Platform({
     x: 1100,
@@ -216,18 +226,28 @@ const platforms = [
     width: 100,
     height: 200,
     type: { pipe: true, normal: false },
-    color: "darkgreen",
+    image: pipeImage,
   }),
 ];
 
 const rockets = [
-  new Rocket({ x: 50, y: 100, width: 50, height: 40 }),
-  new Rocket({ x: 600, y: 300, width: 50, height: 40 }),
+  new Rocket({ x: innerWidth, y: 100, width: 50, height: 40 }),
+  new Rocket({ x: innerWidth, y: 300, width: 50, height: 40 }),
 ];
 
 const turtles = [
-  new Turtle({ x: 50, y: innerHeight, width: 50, height: 40 }),
-  new Turtle({ x: 600, y: innerHeight, width: 50, height: 40 }),
+  new Turtle({
+    x: innerWidth - 150,
+    y: innerHeight - 60,
+    width: 50,
+    height: 40,
+  }),
+  new Turtle({
+    x: innerWidth - 300,
+    y: innerHeight - 60,
+    width: 50,
+    height: 40,
+  }),
 ];
 
 document.addEventListener("keydown", (e) => {
@@ -330,17 +350,11 @@ function animate() {
   c.fillText(`Luigi Lifes: ${luigi.lives}`, 1000, 80);
 
   platforms.forEach((platform) => {
-    // console.log(platform);
-    // if (mario.x > 550) {
-    //   platform.position.x -= mario.dx;
-    // }
-    // if (mario)
-
     platform.draw();
 
     if (platform.type.normal) {
       console.log(platform.type);
-      // console.log(platform.type.solid);
+
       if (mario.directions.down == false) {
         if (
           mario.x < platform.position.x + platform.width &&
@@ -394,10 +408,11 @@ function animate() {
       mario.y + mario.height >= rocket.position.y &&
       mario.y < rocket.position.y
     ) {
-      // mario.dead = true;
-      // mario.x = 0;
-      // mario.y = innerHeight / 2;
-      // mario.score = 0;
+      mario.dead = true;
+      mario.x = 0;
+      mario.y = innerHeight / 2;
+      mario.score = 0;
+      location.reload();
     }
   });
 
@@ -405,16 +420,37 @@ function animate() {
     turtle.update();
 
     // horisontal kollision
+    // if (
+    //   mario.x < turtle.position.x + turtle.width &&
+    //   mario.x + mario.width > turtle.position.x &&
+    //   mario.y + mario.height >= turtle.position.y &&
+    //   mario.y < turtle.position.y
+    // ) {
+    //   turtles.pop(turtle);
+    // }
+
+    if (
+      mario.x < turtle.position.x + turtle.width &&
+      mario.x + mario.width > turtle.position.x &&
+      mario.y + mario.height + 30 >= turtle.position.y &&
+      mario.y < turtle.position.y
+    ) {
+      turtles.pop(turtle);
+    }
     if (
       mario.x < turtle.position.x + turtle.width &&
       mario.x + mario.width > turtle.position.x &&
       mario.y + mario.height >= turtle.position.y &&
       mario.y < turtle.position.y
     ) {
-      // mario.dead = true;
-      // mario.x = 0;
-      // mario.y = innerHeight / 2;
-      // mario.score = 0;
+      mario.dead = true;
+      mario.x = 0;
+      mario.y = innerHeight / 2;
+      mario.score = 0;
+      location.reload();
+    }
+    if (turtle.position.x <= 0) {
+      turtle.velocity = -turtle.velocity;
     }
   });
 
@@ -422,19 +458,19 @@ function animate() {
     if (mario.velocity < 10) {
       marioImage = jump3;
       mario.y -= 50;
-      mario.velocity += 2;
+      mario.velocity += 3;
     } else if (mario.velocity >= 10 && mario.velocity < 20) {
       mario.y -= 40;
-      mario.velocity += 2;
+      mario.velocity += 3;
     } else if (mario.velocity >= 20 && mario.velocity < 30) {
       mario.y -= 30;
-      mario.velocity += 2;
+      mario.velocity += 3;
     } else if (mario.velocity >= 30 && mario.velocity < 40) {
       mario.y -= -10;
-      mario.velocity += 2;
+      mario.velocity += 3;
     } else if (mario.velocity >= 40 && mario.velocity < 50) {
       mario.y -= -5;
-      mario.velocity += 2;
+      mario.velocity += 3;
     } else if (mario.velocity >= 50) {
       mario.velocity = 0;
       marioImage = mario1;
