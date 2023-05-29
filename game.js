@@ -5,8 +5,10 @@ let c = myCanvas.getContext("2d");
 
 myCanvas.width = innerWidth;
 myCanvas.height = innerHeight;
-
-let marioImage = document.getElementById("mario");
+const mario1 = document.getElementById("mario");
+let marioImage = mario1;
+const mario3 = document.getElementById("jump3");
+const jump1 = document.getElementById("jump1");
 let luigiImage = document.getElementById("luigi");
 let rocketImage = document.getElementById("rocket");
 
@@ -24,7 +26,7 @@ let mario = {
   dead: false,
   cooldown: 0,
   jumpFrame: 0,
-  jumping: false,
+
   directions: {
     left: false,
     right: false,
@@ -129,6 +131,59 @@ function updateRockets() {
   lastRocketTime = time;
 }
 
+class Turtle {
+  constructor({ x, y, width, height }) {
+    this.position = {
+      x,
+      y,
+    };
+
+    this.velocity = Math.random() * 10 + 3;
+
+    (this.width = width), (this.height = height);
+  }
+
+  draw() {
+    c.fillStyle = "red";
+    c.drawImage(
+      rocketImage,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height
+    );
+  }
+
+  update() {
+    this.draw();
+    this.position.x -= this.velocity;
+
+    if (this.position.x < 0) {
+      this.position.x = this.width + innerWidth;
+      this.position.y = innerHeight - 150;
+    }
+  }
+}
+
+function updateTurtles() {
+  let time = Date.now();
+  let dt = time - lastRocketTime;
+  let numTurtle = Math.floor(dt * rocketFrequency) / 1000;
+
+  for (let i = 0; i < numTurtle; i++) {
+    let turtleY = innerHeight - 150;
+    let turtle = new Turtle({
+      x: innerWidth,
+      y: turtleY,
+      width: 50,
+      height: 40,
+    });
+    turtles.push(turtle);
+  }
+
+  lastRocketTime = time;
+}
+
 const platforms = [
   new Platform({
     x: 100,
@@ -170,6 +225,11 @@ const rockets = [
   new Rocket({ x: 600, y: 300, width: 50, height: 40 }),
 ];
 
+const turtles = [
+  new Turtle({ x: 50, y: innerHeight, width: 50, height: 40 }),
+  new Turtle({ x: 600, y: innerHeight, width: 50, height: 40 }),
+];
+
 document.addEventListener("keydown", (e) => {
   switch (e.key) {
     case "ArrowLeft":
@@ -180,9 +240,7 @@ document.addEventListener("keydown", (e) => {
       break;
     case "ArrowUp":
       // console.log("HOPP");
-      if (mario.velocity <= 0) {
-        mario.velocity = 1;
-      }
+      marioImage = jump1;
       break;
     case "ArrowDown":
       mario.directions.down = true;
@@ -214,6 +272,11 @@ document.addEventListener("keyup", (e) => {
       mario.directions.right = false;
       break;
     case "ArrowUp":
+      if (mario.velocity <= 0) {
+        mario.velocity = 1;
+      }
+      marioImage = mario1;
+
       break;
     case "ArrowDown":
       mario.directions.down = false;
@@ -255,6 +318,7 @@ function animate() {
   c.drawImage(marioImage, mario.x, mario.y, mario.width, mario.height);
   c.drawImage(luigiImage, luigi.x, luigi.y, luigi.width, luigi.height);
   updateRockets();
+  updateTurtles();
 
   // console.log(platforms.x);
   // console.log(rockets.x);
@@ -337,24 +401,43 @@ function animate() {
     }
   });
 
+  turtles.forEach((turtle) => {
+    turtle.update();
+
+    // horisontal kollision
+    if (
+      mario.x < turtle.position.x + turtle.width &&
+      mario.x + mario.width > turtle.position.x &&
+      mario.y + mario.height >= turtle.position.y &&
+      mario.y < turtle.position.y
+    ) {
+      // mario.dead = true;
+      // mario.x = 0;
+      // mario.y = innerHeight / 2;
+      // mario.score = 0;
+    }
+  });
+
   if (mario.velocity != 0) {
     if (mario.velocity < 10) {
+      marioImage = jump3;
       mario.y -= 50;
-      mario.velocity += 1;
+      mario.velocity += 2;
     } else if (mario.velocity >= 10 && mario.velocity < 20) {
       mario.y -= 40;
-      mario.velocity += 1;
+      mario.velocity += 2;
     } else if (mario.velocity >= 20 && mario.velocity < 30) {
       mario.y -= 30;
-      mario.velocity += 1;
+      mario.velocity += 2;
     } else if (mario.velocity >= 30 && mario.velocity < 40) {
       mario.y -= -10;
-      mario.velocity += 1;
+      mario.velocity += 2;
     } else if (mario.velocity >= 40 && mario.velocity < 50) {
       mario.y -= -5;
-      mario.velocity += 1;
+      mario.velocity += 2;
     } else if (mario.velocity >= 50) {
       mario.velocity = 0;
+      marioImage = mario1;
     }
   }
 
